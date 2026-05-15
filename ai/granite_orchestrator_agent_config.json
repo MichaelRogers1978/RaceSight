@@ -1,0 +1,7 @@
+{
+  "name": "racesight_orchestrator",
+  "description": "Granite agent configuration for the RaceSight Orchestrator.",
+  "system_prompt_file": "ai/prompts/orchestrator_prompt.txt",
+  "tool_choice": "auto",
+  "tools_file": "ai/granite_tool_registration.plain.strict.json"
+}

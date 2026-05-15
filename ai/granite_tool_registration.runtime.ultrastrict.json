@@ -1,0 +1,3135 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_race_state",
+        "description": "Retrieve the latest unified RaceState snapshot containing car, driver, environment, safety, strategy, and prediction models.",
+        "parameters": {
+          "required": null,
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compute_driver_coaching",
+        "description": "Generate turn-by-turn coaching instructions based on the current RaceState.",
+        "parameters": {
+          "required": "race_state",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "required": [
+                "car_state",
+                "driver_state",
+                "environment_state",
+                "race_context",
+                "driver_override_state",
+                "handling_and_risk",
+                "tire_degradation",
+                "track_evolution",
+                "fatigue_hydration",
+                "traffic_model",
+                "safety_status",
+                "pit_strategy_model",
+                "outcome_projection"
+              ],
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The full RaceState object containing all telemetry, models, and predictions.",
+              "properties": {
+                "track_evolution": {
+                  "required": [
+                    "grip_trend_per_lap",
+                    "projected_grip_in_n_laps",
+                    "track_evolution_rate"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_grip_in_n_laps": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "grip_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "track_evolution_rate": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "tire_degradation": {
+                  "required": [
+                    "wear_rate_per_lap_estimate",
+                    "projected_laps_to_cliff",
+                    "projected_grip_drop_pct",
+                    "recommended_pit_window_from_tires"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_window_from_tires": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "projected_laps_to_cliff": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wear_rate_per_lap_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_grip_drop_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "environment_state": {
+                  "required": [
+                    "ambient_temp_c",
+                    "track_temp_c_estimate",
+                    "weather_condition",
+                    "wind_speed_kph",
+                    "wind_direction_deg",
+                    "grip_factor"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "track_temp_c_estimate": {
+                      "type": "number"
+                    },
+                    "wind_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "weather_condition": {
+                      "type": "string",
+                      "enum": [
+                        "clear",
+                        "cloudy",
+                        "light_rain",
+                        "heavy_rain",
+                        "mixed",
+                        "unknown"
+                      ]
+                    },
+                    "grip_factor": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wind_direction_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360
+                    },
+                    "ambient_temp_c": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "outcome_projection": {
+                  "required": [
+                    "projected_finish_position_current_strategy",
+                    "projected_finish_position_aggressive_strategy",
+                    "projected_finish_position_conservative_strategy",
+                    "required_avg_lap_time_for_target_position",
+                    "recommended_strategy_label",
+                    "summary_text"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_finish_position_current_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "recommended_strategy_label": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "hold_position",
+                        "unknown"
+                      ]
+                    },
+                    "summary_text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "projected_finish_position_conservative_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "required_avg_lap_time_for_target_position": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_finish_position_aggressive_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "pit_strategy_model": {
+                  "required": [
+                    "should_pit_now",
+                    "recommended_pit_lap_window",
+                    "primary_reason",
+                    "secondary_reason",
+                    "actions",
+                    "target_pit_time_s",
+                    "risk_if_delayed",
+                    "confidence"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_lap_window": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "primary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "target_pit_time_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "change_tires",
+                          "refuel",
+                          "front_wing_adjustment_clicks",
+                          "brake_duct_adjustment",
+                          "cooling_adjustment",
+                          "driver_hydration_check",
+                          "driver_change"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "refuel": {
+                            "type": "boolean"
+                          },
+                          "brake_duct_adjustment": {
+                            "type": "number"
+                          },
+                          "driver_hydration_check": {
+                            "type": "boolean"
+                          },
+                          "front_wing_adjustment_clicks": {
+                            "type": "integer"
+                          },
+                          "driver_change": {
+                            "type": "boolean"
+                          },
+                          "cooling_adjustment": {
+                            "type": "number"
+                          },
+                          "change_tires": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "minItems": 1
+                    },
+                    "should_pit_now": {
+                      "type": "boolean"
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "secondary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "risk_if_delayed": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "handling_and_risk": {
+                  "required": [
+                    "handling_score",
+                    "risk_index",
+                    "instability_events",
+                    "lockups",
+                    "off_track_events"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "handling_score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "risk_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "lockups": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "off_track_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "instability_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "driver_override_state": {
+                  "required": [
+                    "override_detected",
+                    "override_intensity",
+                    "override_type",
+                    "recommended_speed_kph",
+                    "actual_speed_kph",
+                    "adjusted_safe_speed_kph",
+                    "adjusted_braking_point_m",
+                    "override_risk_multiplier",
+                    "extra_tire_wear_per_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "actual_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_risk_multiplier": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_type": {
+                      "type": "string",
+                      "enum": [
+                        "speeding",
+                        "late_braking",
+                        "aggressive_throttle",
+                        "line_deviation",
+                        "none",
+                        "unknown"
+                      ]
+                    },
+                    "extra_tire_wear_per_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "recommended_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_safe_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_braking_point_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_detected": {
+                      "type": "boolean"
+                    },
+                    "override_intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "safety_status": {
+                  "required": [
+                    "safety_alert_active",
+                    "alert_level",
+                    "alert_reason",
+                    "recommended_action",
+                    "enforced_mode"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "safety_alert_active": {
+                      "type": "boolean"
+                    },
+                    "recommended_action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_level": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "advisory",
+                        "warning",
+                        "critical"
+                      ]
+                    },
+                    "enforced_mode": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "yellow",
+                        "vsc",
+                        "safety_car",
+                        "pit_limiter",
+                        "unknown"
+                      ]
+                    }
+                  }
+                },
+                "traffic_model": {
+                  "required": [
+                    "slow_car_ahead",
+                    "slow_car_gap_s",
+                    "slow_car_speed_delta_kph",
+                    "overtake_possible_here",
+                    "recommended_overtake_segment_id"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "slow_car_gap_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "slow_car_speed_delta_kph": {
+                      "type": "number"
+                    },
+                    "slow_car_ahead": {
+                      "type": "boolean"
+                    },
+                    "recommended_overtake_segment_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1
+                    },
+                    "overtake_possible_here": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "driver_state": {
+                  "required": [
+                    "fatigue_level",
+                    "hydration_level",
+                    "stress_index",
+                    "reaction_time_ms_estimate",
+                    "steering_smoothness",
+                    "error_rate",
+                    "driver_style_profile"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "reaction_time_ms_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "steering_smoothness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "driver_style_profile": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "unknown"
+                      ]
+                    },
+                    "error_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "fatigue_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "stress_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "hydration_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "car_state": {
+                  "required": [
+                    "speed_kph",
+                    "gear",
+                    "rpm",
+                    "throttle_pct",
+                    "brake_pct",
+                    "steering_angle_deg",
+                    "lap_number",
+                    "distance_on_lap_m",
+                    "current_segment_id",
+                    "tire_compound",
+                    "tire_wear_pct",
+                    "tire_temp_c",
+                    "fuel_remaining_l",
+                    "brake_temp_c",
+                    "suspension_load_front",
+                    "suspension_load_rear"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "steering_angle_deg": {
+                      "type": "number"
+                    },
+                    "tire_compound": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "medium",
+                        "hard",
+                        "intermediate",
+                        "wet",
+                        "unknown"
+                      ]
+                    },
+                    "throttle_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "tire_temp_c": {
+                      "type": "number"
+                    },
+                    "rpm": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "tire_wear_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "brake_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "distance_on_lap_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "lap_number": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "current_segment_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "brake_temp_c": {
+                      "type": "number"
+                    },
+                    "fuel_remaining_l": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "gear": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "suspension_load_rear": {
+                      "type": "number"
+                    },
+                    "suspension_load_front": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "race_context": {
+                  "required": [
+                    "race_lap",
+                    "total_laps",
+                    "position_overall",
+                    "gap_ahead_s",
+                    "gap_behind_s",
+                    "safety_car_active",
+                    "vsc_active",
+                    "yellow_flag_sectors",
+                    "cars_ahead",
+                    "cars_behind"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "cars_ahead": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_behind_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "total_laps": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "safety_car_active": {
+                      "type": "boolean"
+                    },
+                    "vsc_active": {
+                      "type": "boolean"
+                    },
+                    "cars_behind": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "position_overall": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "yellow_flag_sectors": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 3
+                      },
+                      "uniqueItems": true
+                    },
+                    "race_lap": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_ahead_s": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "fatigue_hydration": {
+                  "required": [
+                    "fatigue_trend_per_lap",
+                    "hydration_trend_per_lap",
+                    "projected_fatigue_threshold_lap",
+                    "projected_hydration_critical_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_hydration_critical_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "fatigue_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "hydration_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "projected_fatigue_threshold_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compute_pit_strategy",
+        "description": "Compute optimal pit strategy based on tires, fuel, degradation, race context, and predictive models.",
+        "parameters": {
+          "required": "race_state",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "required": [
+                "car_state",
+                "driver_state",
+                "environment_state",
+                "race_context",
+                "driver_override_state",
+                "handling_and_risk",
+                "tire_degradation",
+                "track_evolution",
+                "fatigue_hydration",
+                "traffic_model",
+                "safety_status",
+                "pit_strategy_model",
+                "outcome_projection"
+              ],
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The full RaceState object containing all telemetry, models, and predictions.",
+              "properties": {
+                "track_evolution": {
+                  "required": [
+                    "grip_trend_per_lap",
+                    "projected_grip_in_n_laps",
+                    "track_evolution_rate"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_grip_in_n_laps": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "grip_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "track_evolution_rate": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "tire_degradation": {
+                  "required": [
+                    "wear_rate_per_lap_estimate",
+                    "projected_laps_to_cliff",
+                    "projected_grip_drop_pct",
+                    "recommended_pit_window_from_tires"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_window_from_tires": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "projected_laps_to_cliff": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wear_rate_per_lap_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_grip_drop_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "environment_state": {
+                  "required": [
+                    "ambient_temp_c",
+                    "track_temp_c_estimate",
+                    "weather_condition",
+                    "wind_speed_kph",
+                    "wind_direction_deg",
+                    "grip_factor"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "track_temp_c_estimate": {
+                      "type": "number"
+                    },
+                    "wind_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "weather_condition": {
+                      "type": "string",
+                      "enum": [
+                        "clear",
+                        "cloudy",
+                        "light_rain",
+                        "heavy_rain",
+                        "mixed",
+                        "unknown"
+                      ]
+                    },
+                    "grip_factor": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wind_direction_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360
+                    },
+                    "ambient_temp_c": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "outcome_projection": {
+                  "required": [
+                    "projected_finish_position_current_strategy",
+                    "projected_finish_position_aggressive_strategy",
+                    "projected_finish_position_conservative_strategy",
+                    "required_avg_lap_time_for_target_position",
+                    "recommended_strategy_label",
+                    "summary_text"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_finish_position_current_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "recommended_strategy_label": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "hold_position",
+                        "unknown"
+                      ]
+                    },
+                    "summary_text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "projected_finish_position_conservative_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "required_avg_lap_time_for_target_position": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_finish_position_aggressive_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "pit_strategy_model": {
+                  "required": [
+                    "should_pit_now",
+                    "recommended_pit_lap_window",
+                    "primary_reason",
+                    "secondary_reason",
+                    "actions",
+                    "target_pit_time_s",
+                    "risk_if_delayed",
+                    "confidence"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_lap_window": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "primary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "target_pit_time_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "change_tires",
+                          "refuel",
+                          "front_wing_adjustment_clicks",
+                          "brake_duct_adjustment",
+                          "cooling_adjustment",
+                          "driver_hydration_check",
+                          "driver_change"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "refuel": {
+                            "type": "boolean"
+                          },
+                          "brake_duct_adjustment": {
+                            "type": "number"
+                          },
+                          "driver_hydration_check": {
+                            "type": "boolean"
+                          },
+                          "front_wing_adjustment_clicks": {
+                            "type": "integer"
+                          },
+                          "driver_change": {
+                            "type": "boolean"
+                          },
+                          "cooling_adjustment": {
+                            "type": "number"
+                          },
+                          "change_tires": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "minItems": 1
+                    },
+                    "should_pit_now": {
+                      "type": "boolean"
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "secondary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "risk_if_delayed": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "handling_and_risk": {
+                  "required": [
+                    "handling_score",
+                    "risk_index",
+                    "instability_events",
+                    "lockups",
+                    "off_track_events"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "handling_score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "risk_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "lockups": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "off_track_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "instability_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "driver_override_state": {
+                  "required": [
+                    "override_detected",
+                    "override_intensity",
+                    "override_type",
+                    "recommended_speed_kph",
+                    "actual_speed_kph",
+                    "adjusted_safe_speed_kph",
+                    "adjusted_braking_point_m",
+                    "override_risk_multiplier",
+                    "extra_tire_wear_per_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "actual_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_risk_multiplier": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_type": {
+                      "type": "string",
+                      "enum": [
+                        "speeding",
+                        "late_braking",
+                        "aggressive_throttle",
+                        "line_deviation",
+                        "none",
+                        "unknown"
+                      ]
+                    },
+                    "extra_tire_wear_per_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "recommended_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_safe_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_braking_point_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_detected": {
+                      "type": "boolean"
+                    },
+                    "override_intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "safety_status": {
+                  "required": [
+                    "safety_alert_active",
+                    "alert_level",
+                    "alert_reason",
+                    "recommended_action",
+                    "enforced_mode"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "safety_alert_active": {
+                      "type": "boolean"
+                    },
+                    "recommended_action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_level": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "advisory",
+                        "warning",
+                        "critical"
+                      ]
+                    },
+                    "enforced_mode": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "yellow",
+                        "vsc",
+                        "safety_car",
+                        "pit_limiter",
+                        "unknown"
+                      ]
+                    }
+                  }
+                },
+                "traffic_model": {
+                  "required": [
+                    "slow_car_ahead",
+                    "slow_car_gap_s",
+                    "slow_car_speed_delta_kph",
+                    "overtake_possible_here",
+                    "recommended_overtake_segment_id"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "slow_car_gap_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "slow_car_speed_delta_kph": {
+                      "type": "number"
+                    },
+                    "slow_car_ahead": {
+                      "type": "boolean"
+                    },
+                    "recommended_overtake_segment_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1
+                    },
+                    "overtake_possible_here": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "driver_state": {
+                  "required": [
+                    "fatigue_level",
+                    "hydration_level",
+                    "stress_index",
+                    "reaction_time_ms_estimate",
+                    "steering_smoothness",
+                    "error_rate",
+                    "driver_style_profile"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "reaction_time_ms_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "steering_smoothness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "driver_style_profile": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "unknown"
+                      ]
+                    },
+                    "error_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "fatigue_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "stress_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "hydration_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "car_state": {
+                  "required": [
+                    "speed_kph",
+                    "gear",
+                    "rpm",
+                    "throttle_pct",
+                    "brake_pct",
+                    "steering_angle_deg",
+                    "lap_number",
+                    "distance_on_lap_m",
+                    "current_segment_id",
+                    "tire_compound",
+                    "tire_wear_pct",
+                    "tire_temp_c",
+                    "fuel_remaining_l",
+                    "brake_temp_c",
+                    "suspension_load_front",
+                    "suspension_load_rear"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "steering_angle_deg": {
+                      "type": "number"
+                    },
+                    "tire_compound": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "medium",
+                        "hard",
+                        "intermediate",
+                        "wet",
+                        "unknown"
+                      ]
+                    },
+                    "throttle_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "tire_temp_c": {
+                      "type": "number"
+                    },
+                    "rpm": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "tire_wear_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "brake_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "distance_on_lap_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "lap_number": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "current_segment_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "brake_temp_c": {
+                      "type": "number"
+                    },
+                    "fuel_remaining_l": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "gear": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "suspension_load_rear": {
+                      "type": "number"
+                    },
+                    "suspension_load_front": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "race_context": {
+                  "required": [
+                    "race_lap",
+                    "total_laps",
+                    "position_overall",
+                    "gap_ahead_s",
+                    "gap_behind_s",
+                    "safety_car_active",
+                    "vsc_active",
+                    "yellow_flag_sectors",
+                    "cars_ahead",
+                    "cars_behind"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "cars_ahead": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_behind_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "total_laps": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "safety_car_active": {
+                      "type": "boolean"
+                    },
+                    "vsc_active": {
+                      "type": "boolean"
+                    },
+                    "cars_behind": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "position_overall": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "yellow_flag_sectors": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 3
+                      },
+                      "uniqueItems": true
+                    },
+                    "race_lap": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_ahead_s": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "fatigue_hydration": {
+                  "required": [
+                    "fatigue_trend_per_lap",
+                    "hydration_trend_per_lap",
+                    "projected_fatigue_threshold_lap",
+                    "projected_hydration_critical_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_hydration_critical_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "fatigue_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "hydration_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "projected_fatigue_threshold_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "evaluate_safety_status",
+        "description": "Evaluate safety conditions, risk levels, incidents, and compliance based on the current RaceState.",
+        "parameters": {
+          "required": "race_state",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "required": [
+                "car_state",
+                "driver_state",
+                "environment_state",
+                "race_context",
+                "driver_override_state",
+                "handling_and_risk",
+                "tire_degradation",
+                "track_evolution",
+                "fatigue_hydration",
+                "traffic_model",
+                "safety_status",
+                "pit_strategy_model",
+                "outcome_projection"
+              ],
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The full RaceState object containing all telemetry, models, and predictions.",
+              "properties": {
+                "track_evolution": {
+                  "required": [
+                    "grip_trend_per_lap",
+                    "projected_grip_in_n_laps",
+                    "track_evolution_rate"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_grip_in_n_laps": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "grip_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "track_evolution_rate": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "tire_degradation": {
+                  "required": [
+                    "wear_rate_per_lap_estimate",
+                    "projected_laps_to_cliff",
+                    "projected_grip_drop_pct",
+                    "recommended_pit_window_from_tires"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_window_from_tires": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "projected_laps_to_cliff": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wear_rate_per_lap_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_grip_drop_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "environment_state": {
+                  "required": [
+                    "ambient_temp_c",
+                    "track_temp_c_estimate",
+                    "weather_condition",
+                    "wind_speed_kph",
+                    "wind_direction_deg",
+                    "grip_factor"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "track_temp_c_estimate": {
+                      "type": "number"
+                    },
+                    "wind_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "weather_condition": {
+                      "type": "string",
+                      "enum": [
+                        "clear",
+                        "cloudy",
+                        "light_rain",
+                        "heavy_rain",
+                        "mixed",
+                        "unknown"
+                      ]
+                    },
+                    "grip_factor": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wind_direction_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360
+                    },
+                    "ambient_temp_c": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "outcome_projection": {
+                  "required": [
+                    "projected_finish_position_current_strategy",
+                    "projected_finish_position_aggressive_strategy",
+                    "projected_finish_position_conservative_strategy",
+                    "required_avg_lap_time_for_target_position",
+                    "recommended_strategy_label",
+                    "summary_text"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_finish_position_current_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "recommended_strategy_label": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "hold_position",
+                        "unknown"
+                      ]
+                    },
+                    "summary_text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "projected_finish_position_conservative_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "required_avg_lap_time_for_target_position": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_finish_position_aggressive_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "pit_strategy_model": {
+                  "required": [
+                    "should_pit_now",
+                    "recommended_pit_lap_window",
+                    "primary_reason",
+                    "secondary_reason",
+                    "actions",
+                    "target_pit_time_s",
+                    "risk_if_delayed",
+                    "confidence"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_lap_window": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "primary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "target_pit_time_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "change_tires",
+                          "refuel",
+                          "front_wing_adjustment_clicks",
+                          "brake_duct_adjustment",
+                          "cooling_adjustment",
+                          "driver_hydration_check",
+                          "driver_change"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "refuel": {
+                            "type": "boolean"
+                          },
+                          "brake_duct_adjustment": {
+                            "type": "number"
+                          },
+                          "driver_hydration_check": {
+                            "type": "boolean"
+                          },
+                          "front_wing_adjustment_clicks": {
+                            "type": "integer"
+                          },
+                          "driver_change": {
+                            "type": "boolean"
+                          },
+                          "cooling_adjustment": {
+                            "type": "number"
+                          },
+                          "change_tires": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "minItems": 1
+                    },
+                    "should_pit_now": {
+                      "type": "boolean"
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "secondary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "risk_if_delayed": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "handling_and_risk": {
+                  "required": [
+                    "handling_score",
+                    "risk_index",
+                    "instability_events",
+                    "lockups",
+                    "off_track_events"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "handling_score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "risk_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "lockups": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "off_track_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "instability_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "driver_override_state": {
+                  "required": [
+                    "override_detected",
+                    "override_intensity",
+                    "override_type",
+                    "recommended_speed_kph",
+                    "actual_speed_kph",
+                    "adjusted_safe_speed_kph",
+                    "adjusted_braking_point_m",
+                    "override_risk_multiplier",
+                    "extra_tire_wear_per_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "actual_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_risk_multiplier": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_type": {
+                      "type": "string",
+                      "enum": [
+                        "speeding",
+                        "late_braking",
+                        "aggressive_throttle",
+                        "line_deviation",
+                        "none",
+                        "unknown"
+                      ]
+                    },
+                    "extra_tire_wear_per_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "recommended_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_safe_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_braking_point_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_detected": {
+                      "type": "boolean"
+                    },
+                    "override_intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "safety_status": {
+                  "required": [
+                    "safety_alert_active",
+                    "alert_level",
+                    "alert_reason",
+                    "recommended_action",
+                    "enforced_mode"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "safety_alert_active": {
+                      "type": "boolean"
+                    },
+                    "recommended_action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_level": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "advisory",
+                        "warning",
+                        "critical"
+                      ]
+                    },
+                    "enforced_mode": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "yellow",
+                        "vsc",
+                        "safety_car",
+                        "pit_limiter",
+                        "unknown"
+                      ]
+                    }
+                  }
+                },
+                "traffic_model": {
+                  "required": [
+                    "slow_car_ahead",
+                    "slow_car_gap_s",
+                    "slow_car_speed_delta_kph",
+                    "overtake_possible_here",
+                    "recommended_overtake_segment_id"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "slow_car_gap_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "slow_car_speed_delta_kph": {
+                      "type": "number"
+                    },
+                    "slow_car_ahead": {
+                      "type": "boolean"
+                    },
+                    "recommended_overtake_segment_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1
+                    },
+                    "overtake_possible_here": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "driver_state": {
+                  "required": [
+                    "fatigue_level",
+                    "hydration_level",
+                    "stress_index",
+                    "reaction_time_ms_estimate",
+                    "steering_smoothness",
+                    "error_rate",
+                    "driver_style_profile"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "reaction_time_ms_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "steering_smoothness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "driver_style_profile": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "unknown"
+                      ]
+                    },
+                    "error_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "fatigue_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "stress_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "hydration_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "car_state": {
+                  "required": [
+                    "speed_kph",
+                    "gear",
+                    "rpm",
+                    "throttle_pct",
+                    "brake_pct",
+                    "steering_angle_deg",
+                    "lap_number",
+                    "distance_on_lap_m",
+                    "current_segment_id",
+                    "tire_compound",
+                    "tire_wear_pct",
+                    "tire_temp_c",
+                    "fuel_remaining_l",
+                    "brake_temp_c",
+                    "suspension_load_front",
+                    "suspension_load_rear"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "steering_angle_deg": {
+                      "type": "number"
+                    },
+                    "tire_compound": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "medium",
+                        "hard",
+                        "intermediate",
+                        "wet",
+                        "unknown"
+                      ]
+                    },
+                    "throttle_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "tire_temp_c": {
+                      "type": "number"
+                    },
+                    "rpm": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "tire_wear_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "brake_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "distance_on_lap_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "lap_number": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "current_segment_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "brake_temp_c": {
+                      "type": "number"
+                    },
+                    "fuel_remaining_l": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "gear": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "suspension_load_rear": {
+                      "type": "number"
+                    },
+                    "suspension_load_front": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "race_context": {
+                  "required": [
+                    "race_lap",
+                    "total_laps",
+                    "position_overall",
+                    "gap_ahead_s",
+                    "gap_behind_s",
+                    "safety_car_active",
+                    "vsc_active",
+                    "yellow_flag_sectors",
+                    "cars_ahead",
+                    "cars_behind"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "cars_ahead": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_behind_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "total_laps": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "safety_car_active": {
+                      "type": "boolean"
+                    },
+                    "vsc_active": {
+                      "type": "boolean"
+                    },
+                    "cars_behind": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "position_overall": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "yellow_flag_sectors": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 3
+                      },
+                      "uniqueItems": true
+                    },
+                    "race_lap": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_ahead_s": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "fatigue_hydration": {
+                  "required": [
+                    "fatigue_trend_per_lap",
+                    "hydration_trend_per_lap",
+                    "projected_fatigue_threshold_lap",
+                    "projected_hydration_critical_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_hydration_critical_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "fatigue_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "hydration_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "projected_fatigue_threshold_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "run_what_if_scenario",
+        "description": "Simulate an alternative race scenario such as pitting now, staying out, tire changes, or safety car conditions.",
+        "parameters": {
+          "required": [
+            "race_state",
+            "scenario"
+          ],
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "required": [
+                "car_state",
+                "driver_state",
+                "environment_state",
+                "race_context",
+                "driver_override_state",
+                "handling_and_risk",
+                "tire_degradation",
+                "track_evolution",
+                "fatigue_hydration",
+                "traffic_model",
+                "safety_status",
+                "pit_strategy_model",
+                "outcome_projection"
+              ],
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The full RaceState object to use as the baseline for simulation.",
+              "properties": {
+                "track_evolution": {
+                  "required": [
+                    "grip_trend_per_lap",
+                    "projected_grip_in_n_laps",
+                    "track_evolution_rate"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_grip_in_n_laps": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "grip_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "track_evolution_rate": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "tire_degradation": {
+                  "required": [
+                    "wear_rate_per_lap_estimate",
+                    "projected_laps_to_cliff",
+                    "projected_grip_drop_pct",
+                    "recommended_pit_window_from_tires"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_window_from_tires": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "projected_laps_to_cliff": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wear_rate_per_lap_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_grip_drop_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "environment_state": {
+                  "required": [
+                    "ambient_temp_c",
+                    "track_temp_c_estimate",
+                    "weather_condition",
+                    "wind_speed_kph",
+                    "wind_direction_deg",
+                    "grip_factor"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "track_temp_c_estimate": {
+                      "type": "number"
+                    },
+                    "wind_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "weather_condition": {
+                      "type": "string",
+                      "enum": [
+                        "clear",
+                        "cloudy",
+                        "light_rain",
+                        "heavy_rain",
+                        "mixed",
+                        "unknown"
+                      ]
+                    },
+                    "grip_factor": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "wind_direction_deg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360
+                    },
+                    "ambient_temp_c": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "outcome_projection": {
+                  "required": [
+                    "projected_finish_position_current_strategy",
+                    "projected_finish_position_aggressive_strategy",
+                    "projected_finish_position_conservative_strategy",
+                    "required_avg_lap_time_for_target_position",
+                    "recommended_strategy_label",
+                    "summary_text"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_finish_position_current_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "recommended_strategy_label": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "hold_position",
+                        "unknown"
+                      ]
+                    },
+                    "summary_text": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "projected_finish_position_conservative_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "required_avg_lap_time_for_target_position": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "projected_finish_position_aggressive_strategy": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "pit_strategy_model": {
+                  "required": [
+                    "should_pit_now",
+                    "recommended_pit_lap_window",
+                    "primary_reason",
+                    "secondary_reason",
+                    "actions",
+                    "target_pit_time_s",
+                    "risk_if_delayed",
+                    "confidence"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recommended_pit_lap_window": {
+                      "required": [
+                        "start_lap",
+                        "end_lap"
+                      ],
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "start_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end_lap": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "primary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "target_pit_time_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "required": [
+                          "change_tires",
+                          "refuel",
+                          "front_wing_adjustment_clicks",
+                          "brake_duct_adjustment",
+                          "cooling_adjustment",
+                          "driver_hydration_check",
+                          "driver_change"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "refuel": {
+                            "type": "boolean"
+                          },
+                          "brake_duct_adjustment": {
+                            "type": "number"
+                          },
+                          "driver_hydration_check": {
+                            "type": "boolean"
+                          },
+                          "front_wing_adjustment_clicks": {
+                            "type": "integer"
+                          },
+                          "driver_change": {
+                            "type": "boolean"
+                          },
+                          "cooling_adjustment": {
+                            "type": "number"
+                          },
+                          "change_tires": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "minItems": 1
+                    },
+                    "should_pit_now": {
+                      "type": "boolean"
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "secondary_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "risk_if_delayed": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "handling_and_risk": {
+                  "required": [
+                    "handling_score",
+                    "risk_index",
+                    "instability_events",
+                    "lockups",
+                    "off_track_events"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "handling_score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "risk_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "lockups": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "off_track_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "instability_events": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "driver_override_state": {
+                  "required": [
+                    "override_detected",
+                    "override_intensity",
+                    "override_type",
+                    "recommended_speed_kph",
+                    "actual_speed_kph",
+                    "adjusted_safe_speed_kph",
+                    "adjusted_braking_point_m",
+                    "override_risk_multiplier",
+                    "extra_tire_wear_per_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "actual_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_risk_multiplier": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_type": {
+                      "type": "string",
+                      "enum": [
+                        "speeding",
+                        "late_braking",
+                        "aggressive_throttle",
+                        "line_deviation",
+                        "none",
+                        "unknown"
+                      ]
+                    },
+                    "extra_tire_wear_per_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "recommended_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_safe_speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "adjusted_braking_point_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "override_detected": {
+                      "type": "boolean"
+                    },
+                    "override_intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "safety_status": {
+                  "required": [
+                    "safety_alert_active",
+                    "alert_level",
+                    "alert_reason",
+                    "recommended_action",
+                    "enforced_mode"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "safety_alert_active": {
+                      "type": "boolean"
+                    },
+                    "recommended_action": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_reason": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "alert_level": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "advisory",
+                        "warning",
+                        "critical"
+                      ]
+                    },
+                    "enforced_mode": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "yellow",
+                        "vsc",
+                        "safety_car",
+                        "pit_limiter",
+                        "unknown"
+                      ]
+                    }
+                  }
+                },
+                "traffic_model": {
+                  "required": [
+                    "slow_car_ahead",
+                    "slow_car_gap_s",
+                    "slow_car_speed_delta_kph",
+                    "overtake_possible_here",
+                    "recommended_overtake_segment_id"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "slow_car_gap_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "slow_car_speed_delta_kph": {
+                      "type": "number"
+                    },
+                    "slow_car_ahead": {
+                      "type": "boolean"
+                    },
+                    "recommended_overtake_segment_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1
+                    },
+                    "overtake_possible_here": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "driver_state": {
+                  "required": [
+                    "fatigue_level",
+                    "hydration_level",
+                    "stress_index",
+                    "reaction_time_ms_estimate",
+                    "steering_smoothness",
+                    "error_rate",
+                    "driver_style_profile"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "reaction_time_ms_estimate": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "steering_smoothness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "driver_style_profile": {
+                      "type": "string",
+                      "enum": [
+                        "aggressive",
+                        "balanced",
+                        "conservative",
+                        "unknown"
+                      ]
+                    },
+                    "error_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "fatigue_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "stress_index": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "hydration_level": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "car_state": {
+                  "required": [
+                    "speed_kph",
+                    "gear",
+                    "rpm",
+                    "throttle_pct",
+                    "brake_pct",
+                    "steering_angle_deg",
+                    "lap_number",
+                    "distance_on_lap_m",
+                    "current_segment_id",
+                    "tire_compound",
+                    "tire_wear_pct",
+                    "tire_temp_c",
+                    "fuel_remaining_l",
+                    "brake_temp_c",
+                    "suspension_load_front",
+                    "suspension_load_rear"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "steering_angle_deg": {
+                      "type": "number"
+                    },
+                    "tire_compound": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "medium",
+                        "hard",
+                        "intermediate",
+                        "wet",
+                        "unknown"
+                      ]
+                    },
+                    "throttle_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "tire_temp_c": {
+                      "type": "number"
+                    },
+                    "rpm": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "tire_wear_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "brake_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "distance_on_lap_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "speed_kph": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "lap_number": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "current_segment_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "brake_temp_c": {
+                      "type": "number"
+                    },
+                    "fuel_remaining_l": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "gear": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "suspension_load_rear": {
+                      "type": "number"
+                    },
+                    "suspension_load_front": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "race_context": {
+                  "required": [
+                    "race_lap",
+                    "total_laps",
+                    "position_overall",
+                    "gap_ahead_s",
+                    "gap_behind_s",
+                    "safety_car_active",
+                    "vsc_active",
+                    "yellow_flag_sectors",
+                    "cars_ahead",
+                    "cars_behind"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "cars_ahead": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_behind_s": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "total_laps": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "safety_car_active": {
+                      "type": "boolean"
+                    },
+                    "vsc_active": {
+                      "type": "boolean"
+                    },
+                    "cars_behind": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "position_overall": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "yellow_flag_sectors": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 3
+                      },
+                      "uniqueItems": true
+                    },
+                    "race_lap": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gap_ahead_s": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "fatigue_hydration": {
+                  "required": [
+                    "fatigue_trend_per_lap",
+                    "hydration_trend_per_lap",
+                    "projected_fatigue_threshold_lap",
+                    "projected_hydration_critical_lap"
+                  ],
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "projected_hydration_critical_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "fatigue_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "hydration_trend_per_lap": {
+                      "type": "number"
+                    },
+                    "projected_fatigue_threshold_lap": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            },
+            "scenario": {
+              "type": "string",
+              "description": "A natural-language description of the scenario to simulate. Examples: 'pit now', 'stay out', 'switch to softs', 'safety car in 2 laps'.",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "generate_post_race_summary",
+        "description": "Generate a structured post-race summary including key moments, strategy evaluation, driver performance, and safety interventions.",
+        "parameters": {
+          "required": "race_log",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_log": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "required": [
+                      "timestamp",
+                      "car_state",
+                      "driver_state",
+                      "environment_state",
+                      "race_context",
+                      "segment_id"
+                    ],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "environment_state": {
+                        "required": [
+                          "ambient_temp_c",
+                          "track_temp_c_estimate",
+                          "weather_condition",
+                          "wind_speed_kph",
+                          "wind_direction_deg",
+                          "grip_factor"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "track_temp_c_estimate": {
+                            "type": "number"
+                          },
+                          "wind_speed_kph": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "weather_condition": {
+                            "type": "string",
+                            "enum": [
+                              "clear",
+                              "cloudy",
+                              "light_rain",
+                              "heavy_rain",
+                              "mixed",
+                              "unknown"
+                            ]
+                          },
+                          "grip_factor": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "wind_direction_deg": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 360
+                          },
+                          "ambient_temp_c": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "driver_state": {
+                        "required": [
+                          "fatigue_level",
+                          "hydration_level",
+                          "stress_index",
+                          "reaction_time_ms_estimate",
+                          "steering_smoothness",
+                          "error_rate",
+                          "driver_style_profile"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "reaction_time_ms_estimate": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "steering_smoothness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "driver_style_profile": {
+                            "type": "string",
+                            "enum": [
+                              "aggressive",
+                              "balanced",
+                              "conservative",
+                              "unknown"
+                            ]
+                          },
+                          "error_rate": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "fatigue_level": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "stress_index": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "hydration_level": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      },
+                      "car_state": {
+                        "required": [
+                          "speed_kph",
+                          "gear",
+                          "rpm",
+                          "throttle_pct",
+                          "brake_pct",
+                          "steering_angle_deg",
+                          "lap_number",
+                          "distance_on_lap_m",
+                          "current_segment_id",
+                          "tire_compound",
+                          "tire_wear_pct",
+                          "tire_temp_c",
+                          "fuel_remaining_l",
+                          "brake_temp_c",
+                          "suspension_load_front",
+                          "suspension_load_rear"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "steering_angle_deg": {
+                            "type": "number"
+                          },
+                          "tire_compound": {
+                            "type": "string",
+                            "enum": [
+                              "soft",
+                              "medium",
+                              "hard",
+                              "intermediate",
+                              "wet",
+                              "unknown"
+                            ]
+                          },
+                          "throttle_pct": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "tire_temp_c": {
+                            "type": "number"
+                          },
+                          "rpm": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "tire_wear_pct": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "brake_pct": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "distance_on_lap_m": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "speed_kph": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "lap_number": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "current_segment_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "brake_temp_c": {
+                            "type": "number"
+                          },
+                          "fuel_remaining_l": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "gear": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "suspension_load_rear": {
+                            "type": "number"
+                          },
+                          "suspension_load_front": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "description": "ISO-8601 UTC timestamp.",
+                        "format": "date-time"
+                      },
+                      "race_context": {
+                        "required": [
+                          "race_lap",
+                          "total_laps",
+                          "position_overall",
+                          "gap_ahead_s",
+                          "gap_behind_s",
+                          "safety_car_active",
+                          "vsc_active",
+                          "yellow_flag_sectors",
+                          "cars_ahead",
+                          "cars_behind"
+                        ],
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "cars_ahead": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gap_behind_s": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "total_laps": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "safety_car_active": {
+                            "type": "boolean"
+                          },
+                          "vsc_active": {
+                            "type": "boolean"
+                          },
+                          "cars_behind": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "position_overall": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "yellow_flag_sectors": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 3
+                            },
+                            "uniqueItems": true
+                          },
+                          "race_lap": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gap_ahead_s": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        }
+                      },
+                      "segment_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "timestamp",
+                      "lap_number",
+                      "type",
+                      "location_segment_id",
+                      "severity",
+                      "description"
+                    ],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "info",
+                          "low",
+                          "medium",
+                          "high",
+                          "critical"
+                        ]
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "description": "ISO-8601 UTC timestamp.",
+                        "format": "date-time"
+                      },
+                      "lap_number": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "location_segment_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "description": "A list of TelemetryPoints and race events representing the full race history."
+            }
+          }
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}

@@ -1,0 +1,127 @@
+{
+  "tool_choice": "auto",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_race_state",
+        "description": "Retrieve the latest unified RaceState snapshot containing car, driver, environment, safety, strategy, and prediction models.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compute_driver_coaching",
+        "description": "Generate turn-by-turn coaching instructions based on the current RaceState.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "type": "object",
+              "description": "The full RaceState object containing all telemetry, models, and predictions."
+            }
+          },
+          "required": [
+            "race_state"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compute_pit_strategy",
+        "description": "Compute optimal pit strategy based on tires, fuel, degradation, race context, and predictive models.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "type": "object",
+              "description": "The full RaceState object containing all telemetry, models, and predictions."
+            }
+          },
+          "required": [
+            "race_state"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "evaluate_safety_status",
+        "description": "Evaluate safety conditions, risk levels, incidents, and compliance based on the current RaceState.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "type": "object",
+              "description": "The full RaceState object containing all telemetry, models, and predictions."
+            }
+          },
+          "required": [
+            "race_state"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "run_what_if_scenario",
+        "description": "Simulate an alternative race scenario such as pitting now, staying out, tire changes, or safety car conditions.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_state": {
+              "type": "object",
+              "description": "The full RaceState object to use as the baseline for simulation."
+            },
+            "scenario": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A natural-language description of the scenario to simulate. Examples: 'pit now', 'stay out', 'switch to softs', 'safety car in 2 laps'."
+            }
+          },
+          "required": [
+            "race_state",
+            "scenario"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "generate_post_race_summary",
+        "description": "Generate a structured post-race summary including key moments, strategy evaluation, driver performance, and safety interventions.",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "race_log": {
+              "type": "array",
+              "description": "A list of TelemetryPoints and race events representing the full race history.",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "race_log"
+          ]
+        }
+      }
+    }
+  ]
+}

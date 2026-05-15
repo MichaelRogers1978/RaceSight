@@ -20,6 +20,7 @@ from ai.copilot_driver import compute_driver_coaching_adapter  # noqa: E402
 from ai.pit_boss import compute_pit_strategy_adapter  # noqa: E402
 from ai.safety_ai import evaluate_safety_status_adapter  # noqa: E402
 from ai.what_if_ai import run_what_if_scenario_adapter  # noqa: E402
+from ai.post_race_ai import generate_post_race_summary_adapter  # noqa: E402
 from ai.schema_usage import (  # noqa: E402
     ToolExecutor,
     example_race_state_payload,
@@ -197,12 +198,12 @@ def run_what_if_scenario(race_state: Dict[str, Any], scenario: str) -> Dict[str,
 
 
 def generate_post_race_summary(race_log: List[Dict[str, Any]]) -> Dict[str, Any]:
-    return {
-        "status": "stub",
-        "tool": "generate_post_race_summary",
-        "message": "Replace with real post-race summary implementation.",
-        "events_count": len(race_log),
-    }
+    return generate_post_race_summary_adapter(
+        race_log=race_log,
+        endpoint=RUNTIME_GRANITE_ENDPOINT,
+        api_key=RUNTIME_GRANITE_API_KEY,
+        model=RUNTIME_GRANITE_MODEL,
+    )
 
 
 TOOL_DISPATCH = {

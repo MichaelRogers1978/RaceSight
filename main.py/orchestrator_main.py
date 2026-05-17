@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from concurrent.futures import ThreadPoolExecutor
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
@@ -26,6 +27,8 @@ from ai.schema_usage import (  # noqa: E402
     example_race_state_payload,
     invoke_tool_with_validation,
 )
+from core.race_state import build_race_state_from_sensor_snapshot  # noqa: E402
+from core.telemetry import TelemetryFeedError, load_sensor_snapshot  # noqa: E402
 
 
 _EMBEDDED_CONFIG = load_embedded_orchestrator_config()
@@ -157,7 +160,12 @@ def call_llm_with_tools(
 
 # --- Backend implementations ---
 def get_race_state() -> Dict[str, Any]:
-    return example_race_state_payload()
+    try:
+        snapshot = load_sensor_snapshot()
+        return build_race_state_from_sensor_snapshot(snapshot)
+    except TelemetryFeedError:
+        # Preserve availability if a live feed is unavailable.
+        return example_race_state_payload()
 
 
 def compute_driver_coaching(race_state: Dict[str, Any]) -> Dict[str, Any]:
@@ -265,6 +273,9 @@ def racesight_orchestrator(
         )
 
         if "tool_calls" in response:
+            prepared_calls: list[tuple[dict[str, Any], str, dict[str, Any]]] = []
+            shared_race_state: dict[str, Any] | None = None
+
             for tool_call in response["tool_calls"]:
                 tool_name = tool_call["name"]
                 tool_args = _parse_tool_arguments(tool_call.get("arguments", {}))
@@ -275,17 +286,36 @@ def racesight_orchestrator(
                     "evaluate_safety_status",
                     "run_what_if_scenario",
                 } and "race_state" not in tool_args:
-                    tool_args["race_state"] = get_race_state()
+                    if shared_race_state is None:
+                        shared_race_state = get_race_state()
+                    tool_args["race_state"] = shared_race_state
 
-                result = invoke_tool_with_validation(tool_name, tool_args, executors)
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.get("id", "tool-call-1"),
-                        "name": tool_name,
-                        "content": json.dumps(result),
-                    }
-                )
+                prepared_calls.append((tool_call, tool_name, tool_args))
+
+            with ThreadPoolExecutor(max_workers=min(4, len(prepared_calls) or 1)) as pool:
+                future_items = [
+                    (
+                        tool_call,
+                        tool_name,
+                        pool.submit(invoke_tool_with_validation, tool_name, tool_args, executors),
+                    )
+                    for tool_call, tool_name, tool_args in prepared_calls
+                ]
+
+                for tool_call, tool_name, future in future_items:
+                    try:
+                        result = future.result()
+                    except Exception as exc:  # noqa: BLE001
+                        result = {"error": str(exc), "tool": tool_name}
+
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.get("id", "tool-call-1"),
+                            "name": tool_name,
+                            "content": json.dumps(result),
+                        }
+                    )
 
             continue
 

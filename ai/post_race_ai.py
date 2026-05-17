@@ -7,7 +7,7 @@ from typing import Any
 from .granite_orchestrator_loader import extract_message_from_granite_response, send_to_granite
 
 
-PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "outcome_prompt.txt"
+PROMPT_FILE = Path(__file__).resolve().parent / "prompts" / "post_race_prompt.txt"
 DEFAULT_POST_RACE_PROMPT = (
 	"You are RaceSight Post-Race AI. Generate a structured post-race summary from race_log. "
 	"Return JSON with keys: summary_text, key_moments, strategy_evaluation, driver_performance, "

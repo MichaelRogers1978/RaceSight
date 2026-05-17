@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import random
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -10,6 +13,85 @@ from urllib import error, request
 
 DEFAULT_EMBEDDED_CONFIG_FILE = "granite_orchestrator_agent_config.embedded.json"
 DEFAULT_GRANITE_TIMEOUT_SECONDS = 60
+DEFAULT_GRANITE_RETRY_ATTEMPTS = 3
+DEFAULT_GRANITE_RETRY_BASE_DELAY_SECONDS = 0.5
+MAX_LOGGED_PAYLOAD_CHARS = 6000
+_TRANSIENT_HTTP_STATUS_CODES = {408, 409, 425, 429, 500, 502, 503, 504}
+
+
+LOGGER = logging.getLogger("racesight.granite")
+
+
+def _is_debug_logging_enabled() -> bool:
+    return os.getenv("RACESIGHT_GRANITE_DEBUG_LOG", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _configure_granite_logger() -> None:
+    if LOGGER.handlers:
+        return
+
+    log_dir = Path(os.getenv("RACESIGHT_LOG_DIR", "logs"))
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "granite_debug.log"
+
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s %(levelname)s %(name)s - %(message)s",
+        "%Y-%m-%d %H:%M:%S",
+    )
+    handler.setFormatter(formatter)
+    LOGGER.addHandler(handler)
+    LOGGER.setLevel(logging.DEBUG)
+    LOGGER.propagate = False
+
+
+def _serialize_for_log(value: Any) -> str:
+    text = json.dumps(value, ensure_ascii=True, default=str)
+    if len(text) <= MAX_LOGGED_PAYLOAD_CHARS:
+        return text
+    return text[:MAX_LOGGED_PAYLOAD_CHARS] + "...<truncated>"
+
+
+def _log_granite_request(endpoint: str, payload: dict[str, Any], headers: dict[str, str]) -> None:
+    if not _is_debug_logging_enabled():
+        return
+
+    _configure_granite_logger()
+    safe_headers = {k: v for k, v in headers.items() if k.lower() != "authorization"}
+    LOGGER.debug(
+        "Granite request endpoint=%s headers=%s payload=%s",
+        endpoint,
+        _serialize_for_log(safe_headers),
+        _serialize_for_log(payload),
+    )
+
+
+def _log_granite_response(status: int, body: str, attempt: int) -> None:
+    if not _is_debug_logging_enabled():
+        return
+
+    _configure_granite_logger()
+    LOGGER.debug(
+        "Granite response attempt=%d status=%d body=%s",
+        attempt,
+        status,
+        body[:MAX_LOGGED_PAYLOAD_CHARS] + ("...<truncated>" if len(body) > MAX_LOGGED_PAYLOAD_CHARS else ""),
+    )
+
+
+def _should_retry_http_error(status_code: int) -> bool:
+    return status_code in _TRANSIENT_HTTP_STATUS_CODES
+
+
+def _sleep_with_backoff(attempt: int, base_delay_seconds: float) -> None:
+    jitter = random.uniform(0.0, 0.2)
+    delay = base_delay_seconds * (2 ** (attempt - 1)) + jitter
+    time.sleep(delay)
 
 
 @dataclass(frozen=True)
@@ -125,6 +207,8 @@ def send_to_granite(
     endpoint: str | None = None,
     api_key: str | None = None,
     timeout_seconds: int = DEFAULT_GRANITE_TIMEOUT_SECONDS,
+    retry_attempts: int = DEFAULT_GRANITE_RETRY_ATTEMPTS,
+    retry_base_delay_seconds: float = DEFAULT_GRANITE_RETRY_BASE_DELAY_SECONDS,
     extra_headers: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """POST a Granite request payload to the configured Granite endpoint."""
@@ -141,25 +225,44 @@ def send_to_granite(
         headers["Authorization"] = f"Bearer {auth_key}"
     if extra_headers:
         headers.update(extra_headers)
+    _log_granite_request(target_endpoint, payload, headers)
 
     request_body = json.dumps(payload).encode("utf-8")
-    http_request = request.Request(
-        url=target_endpoint,
-        data=request_body,
-        headers=headers,
-        method="POST",
-    )
+    attempts = max(1, retry_attempts)
+    response_text = ""
 
-    try:
-        with request.urlopen(http_request, timeout=timeout_seconds) as response:
-            response_text = response.read().decode("utf-8")
-    except error.HTTPError as exc:
-        response_text = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(
-            f"Granite request failed with HTTP {exc.code}: {response_text}"
-        ) from exc
-    except error.URLError as exc:
-        raise RuntimeError(f"Granite request failed: {exc.reason}") from exc
+    for attempt in range(1, attempts + 1):
+        http_request = request.Request(
+            url=target_endpoint,
+            data=request_body,
+            headers=headers,
+            method="POST",
+        )
+
+        try:
+            with request.urlopen(http_request, timeout=timeout_seconds) as response:
+                response_text = response.read().decode("utf-8")
+                _log_granite_response(response.status, response_text, attempt)
+                break
+        except error.HTTPError as exc:
+            response_text = exc.read().decode("utf-8", errors="replace")
+            _log_granite_response(exc.code, response_text, attempt)
+            if attempt < attempts and _should_retry_http_error(exc.code):
+                _sleep_with_backoff(attempt, retry_base_delay_seconds)
+                continue
+            raise RuntimeError(
+                f"Granite request failed with HTTP {exc.code}: {response_text}"
+            ) from exc
+        except error.URLError as exc:
+            if attempt < attempts:
+                _sleep_with_backoff(attempt, retry_base_delay_seconds)
+                continue
+            raise RuntimeError(f"Granite request failed: {exc.reason}") from exc
+        except TimeoutError as exc:
+            if attempt < attempts:
+                _sleep_with_backoff(attempt, retry_base_delay_seconds)
+                continue
+            raise RuntimeError("Granite request timed out") from exc
 
     try:
         return json.loads(response_text)

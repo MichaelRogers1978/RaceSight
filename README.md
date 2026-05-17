@@ -28,6 +28,10 @@ Set these before live Granite calls:
 
 - `GRANITE_ENDPOINT`: Granite chat/tool-calling endpoint
 - `GRANITE_API_KEY`: bearer token or compatible API credential
+- `RACESIGHT_GRANITE_DEBUG_LOG`: set to `true` to log Granite payloads/responses for debugging
+- `RACESIGHT_LOG_DIR`: optional directory for debug logs (default: `logs`)
+- `RACESIGHT_SENSOR_FEED_URL`: optional HTTP telemetry feed URL
+- `RACESIGHT_SENSOR_FEED_FILE`: telemetry JSON file path if URL is not set
 
 Start from `.env.example` and copy the values you need into your local environment setup.
 
@@ -73,5 +77,15 @@ For private-to-public publishing safety, follow the checklist in `SECURITY.md` b
 ## Notes
 
 - Prompt files under `ai/prompts/` can be customized per agent role.
-- Some AI module files currently use fallback prompts if their prompt files are empty.
-- The repository is structured for incremental migration from simulated data toward real telemetry sources.
+- `main.py/orchestrator_main.py` now builds `RaceState` from live sensor feed input (`core/telemetry.py` + `core/race_state.py`).
+- If telemetry feed loading fails, the orchestrator falls back to the schema-conformant example payload to preserve availability.
+
+## CI schema validation
+
+- GitHub Actions workflow `.github/workflows/schema-validation.yml` validates Granite JSON artifacts and compiles Python on each PR/push.
+- Local equivalent check:
+
+```powershell
+& ".venv/Scripts/python.exe" "tools/validate_schemas.py"
+& ".venv/Scripts/python.exe" -m compileall ai analytics core main.py tools
+```

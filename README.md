@@ -33,17 +33,9 @@ Set these before live Granite calls:
 - `RACESIGHT_SENSOR_FEED_URL`: optional HTTP telemetry feed URL
 - `RACESIGHT_SENSOR_FEED_FILE`: telemetry JSON file path if URL is not set
 
-Start from `.env.example` and copy the values you need into your local environment setup.
+Set these in your shell before running the orchestrator or backend.
 
 You can also pass endpoint, key, and model via CLI flags.
-
-Example PowerShell session setup from `.env.example` values:
-
-```powershell
-$env:GRANITE_ENDPOINT = "https://your-granite-endpoint"
-$env:GRANITE_API_KEY = "your-api-key"
-$env:GRANITE_MODEL = ""
-```
 
 ## Running the orchestrator
 
@@ -60,6 +52,26 @@ $env:GRANITE_ENDPOINT = "https://your-granite-endpoint"
 $env:GRANITE_API_KEY = "your-api-key"
 
 & ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" "Is it safe?"
+```
+
+## Running the backend API
+
+Start the FastAPI backend (`/chat`) with the helper script:
+
+```powershell
+./backend_run.ps1
+```
+
+Start with live-reload during development:
+
+```powershell
+./backend_run.ps1 -Reload
+```
+
+Call the chat endpoint:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat" -Method Post -ContentType "application/json" -Body '{"message":"What should we do now?"}'
 ```
 
 ## Repository setup

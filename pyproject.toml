@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "racesight"
+version = "0.1.0"
+description = "RaceSight motorsport intelligence platform"
+requires-python = ">=3.11"
+
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ai*", "analytics*", "core*"]

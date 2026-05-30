@@ -42,3 +42,32 @@ def test_granite_endpoint_returns_wrapper_response(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"response": "granite:race update:be concise"}
+
+
+def test_racesight_router_endpoint_returns_orchestrator_response(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.racesight_orchestrator",
+        lambda message: f"router:{message}",
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/racesight", json={"message": "status"})
+
+    assert response.status_code == 200
+    assert response.json() == {"response": "router:status"}
+
+
+def test_racesight_router_granite_endpoint_returns_wrapper_response(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.racesight_granite_call",
+        lambda prompt, system_prompt=None: f"router-granite:{prompt}:{system_prompt}",
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post(
+        "/racesight/granite",
+        json={"prompt": "pit now", "system_prompt": "short"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"response": "router-granite:pit now:short"}

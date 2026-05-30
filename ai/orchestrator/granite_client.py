@@ -4,9 +4,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from ai.orchestrator.control_loop import racesight_granite_call, racesight_orchestrator
+from ai.orchestrator.routes import router as racesight_router
 
 
 app = FastAPI()
+app.include_router(racesight_router)
 
 
 class ChatRequest(BaseModel):

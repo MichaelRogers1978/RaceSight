@@ -22,6 +22,7 @@ from ai.pit_boss import compute_pit_strategy_adapter  # noqa: E402
 from ai.safety_ai import evaluate_safety_status_adapter  # noqa: E402
 from ai.what_if_ai import run_what_if_scenario_adapter  # noqa: E402
 from ai.post_race_ai import generate_post_race_summary_adapter  # noqa: E402
+from ai.orchestrator.control_loop import run_driver_coaching_loop, run_race_replay_mode  # noqa: E402
 from ai.schema_usage import (  # noqa: E402
     ToolExecutor,
     example_race_state_payload,
@@ -443,11 +444,39 @@ def run_orchestrator_turn(
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="RaceSight Granite orchestrator entrypoint")
-    parser.add_argument("message", help="User message to send to the orchestrator")
+    parser.add_argument(
+        "message",
+        nargs="?",
+        default="What should we do now?",
+        help="User message to send to the orchestrator",
+    )
     parser.add_argument("--endpoint", help="Granite HTTP endpoint. Defaults to GRANITE_ENDPOINT")
     parser.add_argument("--api-key", help="Granite API key. Defaults to GRANITE_API_KEY")
     parser.add_argument("--model", help="Optional Granite model identifier")
     parser.add_argument("--config", help="Optional embedded config JSON path")
+    parser.add_argument(
+        "--mode",
+        choices=["chat", "replay", "coach"],
+        default="chat",
+        help="Run the normal chat loop or a telemetry replay/coaching view",
+    )
+    parser.add_argument(
+        "--max-frames",
+        type=int,
+        default=6,
+        help="Maximum replay frames to print in replay mode",
+    )
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=6,
+        help="Maximum coaching steps to print in coaching mode",
+    )
+    parser.add_argument(
+        "--include-brief",
+        action="store_true",
+        help="Include a race engineer brief in replay mode",
+    )
     parser.add_argument(
         "--print-payload-only",
         action="store_true",
@@ -483,6 +512,27 @@ def main() -> int:
             model=args.model,
         )
         print(json.dumps(payload, indent=2))
+        return 0
+
+    if args.mode == "replay":
+        replay = run_race_replay_mode(
+            max_frames=args.max_frames,
+            include_brief=args.include_brief,
+            endpoint=args.endpoint,
+            api_key=args.api_key,
+            model_id=args.model,
+        )
+        print(json.dumps({"mode": "replay", "frames": replay}, indent=2))
+        return 0
+
+    if args.mode == "coach":
+        coaching = run_driver_coaching_loop(
+            max_steps=args.max_steps,
+            endpoint=args.endpoint,
+            api_key=args.api_key,
+            model_id=args.model,
+        )
+        print(json.dumps({"mode": "coach", "steps": coaching}, indent=2))
         return 0
 
     if args.legacy_turn:

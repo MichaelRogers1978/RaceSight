@@ -1,33 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>RaceSight</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RaceSight Control Room</title>
     <style>
-        body { font-family: Arial; margin: 40px; }
-        #output { 
-            white-space: pre-wrap; 
-            background: #f4f4f4; 
-            padding: 20px; 
-            border-radius: 8px; 
-            height: 300px; 
-            overflow-y: auto; 
-            margin-top: 20px;
+        :root {
+            --bg: #07111f;
+            --panel: rgba(10, 18, 32, 0.92);
+            --border: rgba(140, 166, 255, 0.18);
+            --text: #e7eefc;
+            --muted: #97a8c7;
+            --accent: #6ee7ff;
+            --accent-2: #7c8cff;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+            --radius: 22px;
         }
-        button { padding: 10px 20px; margin-top: 10px; }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(110, 231, 255, 0.16), transparent 30%),
+                radial-gradient(circle at top right, rgba(124, 140, 255, 0.12), transparent 25%),
+                linear-gradient(160deg, #050a12 0%, #07111f 50%, #091523 100%);
+            min-height: 100vh;
+        }
+
+        .shell { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.35fr 0.65fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--panel), rgba(10, 18, 32, 0.72));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-card { padding: 28px; }
+        .header-card h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); letter-spacing: 0.02em; }
+        .header-card p { color: var(--muted); line-height: 1.5; max-width: 70ch; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(110, 231, 255, 0.12);
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            border: 1px solid rgba(110, 231, 255, 0.2);
+        }
+
+        .status-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .live-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            padding: 20px;
+        }
+
+        .metric {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .metric .label { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; }
+        .metric .value { margin-top: 8px; font-size: 1.15rem; font-weight: 600; }
+
+        .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text);
+            padding: 11px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover, .tab.active {
+            transform: translateY(-1px);
+            background: rgba(110, 231, 255, 0.12);
+            border-color: rgba(110, 231, 255, 0.35);
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel { padding: 20px; }
+        .panel h2 { margin: 0 0 12px; font-size: 1.15rem; }
+        .panel p.help { margin-top: 0; color: var(--muted); }
+
+        textarea, input {
+            width: 100%;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 16px;
+            font: inherit;
+            outline: none;
+        }
+
+        textarea:focus, input:focus {
+            border-color: rgba(110, 231, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(110, 231, 255, 0.08);
+        }
+
+        textarea { min-height: 120px; resize: vertical; }
+
+        .controls { display: grid; gap: 12px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+        button {
+            border: none;
+            background: linear-gradient(135deg, var(--accent-2), var(--accent));
+            color: #04101b;
+            font-weight: 700;
+            border-radius: 14px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        button:hover { transform: translateY(-1px); filter: brightness(1.02); }
+
+        .output {
+            min-height: 440px;
+            max-height: 72vh;
+            overflow: auto;
+            white-space: pre-wrap;
+            padding: 18px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(4, 10, 18, 0.95), rgba(10, 16, 28, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            line-height: 1.55;
+            font-size: 0.95rem;
+        }
+
+        .mode-panel[hidden] { display: none; }
+
+        .footer-note {
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 1100px) {
+            .hero, .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+    <div class="shell">
+        <div class="hero">
+            <section class="card header-card">
+                <div class="status-pill">RaceSight Control Room</div>
+                <h1>RaceSight</h1>
+                <p>
+                    Live race intelligence with telemetry replay, race engineer briefing,
+                    driver coaching loops, and streaming responses. Use the tabs below to
+                    switch between conversation, analysis, and playback views.
+                </p>
+                <div class="status-row">
+                    <div class="live-chip" id="liveStatus">Live status: polling...</div>
+                    <div class="footer-note" id="status">Ready</div>
+                </div>
+            </section>
 
-<h1>RaceSight</h1>
-<p>Ask anything about pit strategy, coaching, safety, or race scenarios.</p>
+            <aside class="card metrics">
+                <div class="metric"><div class="label">Backend</div><div class="value">FastAPI</div></div>
+                <div class="metric"><div class="label">Telemetry</div><div class="value">Replay-ready</div></div>
+                <div class="metric"><div class="label">Persona</div><div class="value">Race Engineer</div></div>
+                <div class="metric"><div class="label">Output</div><div class="value">Streaming</div></div>
+            </aside>
+        </div>
 
-<textarea id="input" rows="4" style="width:100%;"></textarea>
-<br>
-<button onclick="sendMessage()">Send</button>
+        <div class="tabs">
+            <button class="tab active" data-mode-tab="chat" onclick="setMode('chat')">Chat</button>
+            <button class="tab" data-mode-tab="brief" onclick="setMode('brief')">Engineer Brief</button>
+            <button class="tab" data-mode-tab="replay" onclick="setMode('replay')">Replay</button>
+            <button class="tab" data-mode-tab="coach" onclick="setMode('coach')">Coach Loop</button>
+            <button class="tab" data-mode-tab="stream" onclick="setMode('stream')">Streaming</button>
+            <button class="tab" data-mode-tab="granite" onclick="setMode('granite')">Granite</button>
+        </div>
 
-<div id="output"></div>
+        <div class="grid">
+            <section class="card panel">
+                <div class="mode-panel" data-mode-panel="chat">
+                    <h2>Conversation</h2>
+                    <p class="help">Ask RaceSight a question and get the orchestrated answer.</p>
+                    <div class="controls">
+                        <textarea id="chatInput" placeholder="What should we do now?"></textarea>
+                        <div class="btn-row">
+                            <button onclick="sendMessage()">Send</button>
+                            <button class="secondary" onclick="streamChat()">Stream</button>
+                        </div>
+                    </div>
+                </div>
 
-<script src="script.js"></script>
+                <div class="mode-panel" data-mode-panel="brief" hidden>
+                    <h2>Race Engineer Brief</h2>
+                    <p class="help">Synthesizes telemetry, coaching, pit strategy, and safety into a pit-wall brief.</p>
+                    <div class="controls">
+                        <input id="briefFocus" placeholder="balanced / aggressive / conservative" value="balanced" />
+                        <div class="btn-row"><button onclick="generateBrief()">Generate Brief</button></div>
+                    </div>
+                </div>
+
+                <div class="mode-panel" data-mode-panel="replay" hidden>
+                    <h2>Replay Mode</h2>
+                    <p class="help">Replays a telemetry series and shows frame-by-frame state.</p>
+                    <div class="controls">
+                        <div class="row">
+                            <input id="replayFrames" type="number" min="1" max="20" value="4" />
+                            <label class="toggle"><input id="replayBrief" type="checkbox" checked /> include brief on first/last frame</label>
+                        </div>
+                        <div class="btn-row"><button onclick="loadReplay()">Load Replay</button></div>
+                    </div>
+                </div>
+
+                <div class="mode-panel" data-mode-panel="coach" hidden>
+                    <h2>Driver Coaching Loop</h2>
+                    <p class="help">Walks through telemetry frames and emits a coaching step at each point.</p>
+                    <div class="controls">
+                        <input id="coachSteps" type="number" min="1" max="20" value="4" />
+                        <div class="btn-row"><button onclick="runCoachLoop()">Run Loop</button></div>
+                    </div>
+                </div>
+
+                <div class="mode-panel" data-mode-panel="stream" hidden>
+                    <h2>Streaming Response</h2>
+                    <p class="help">Shows the same chat answer as a live stream.</p>
+                    <div class="controls"><div class="btn-row"><button onclick="streamChat()">Stream Chat</button></div></div>
+                </div>
+
+                <div class="mode-panel" data-mode-panel="granite" hidden>
+                    <h2>Granite Text Generation</h2>
+                    <p class="help">Calls the dedicated Granite endpoint for direct text generation.</p>
+                    <div class="controls">
+                        <textarea id="granitePrompt" placeholder="Generate a concise pit-wall update for lap 22."></textarea>
+                        <input id="graniteSystemPrompt" placeholder="Optional system prompt" />
+                        <div class="btn-row"><button onclick="generateGraniteText()">Generate</button></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card panel">
+                <h2>Output</h2>
+                <div id="output" class="output">Ready for RaceSight input.</div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

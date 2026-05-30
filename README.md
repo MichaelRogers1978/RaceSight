@@ -54,6 +54,18 @@ $env:GRANITE_API_KEY = "your-api-key"
 & ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" "Is it safe?"
 ```
 
+Run replay mode from the CLI:
+
+```powershell
+& ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" --mode replay --max-frames 4
+```
+
+Run the driver coaching loop from the CLI:
+
+```powershell
+& ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" --mode coach --max-steps 4
+```
+
 ## Running the backend API
 
 Start the FastAPI backend (`/chat`) with the helper script:
@@ -72,6 +84,12 @@ Call the chat endpoint:
 
 ```powershell
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat" -Method Post -ContentType "application/json" -Body '{"message":"What should we do now?"}'
+```
+
+Poll live runtime status:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/racesight/status" -Method Get
 ```
 
 ## Repository setup

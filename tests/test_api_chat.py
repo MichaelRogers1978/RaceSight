@@ -71,3 +71,72 @@ def test_racesight_router_granite_endpoint_returns_wrapper_response(monkeypatch)
 
     assert response.status_code == 200
     assert response.json() == {"response": "router-granite:pit now:short"}
+
+
+def test_racesight_router_brief_endpoint_returns_brief(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.get_race_state",
+        lambda: {"race_context": {"race_lap": 12}},
+    )
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.racesight_race_engineer_brief",
+        lambda race_state, focus="balanced": {"brief": f"{focus}:{race_state['race_context']['race_lap']}"},
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/racesight/brief", json={"focus": "aggressive"})
+
+    assert response.status_code == 200
+    assert response.json() == {"brief": "aggressive:12"}
+
+
+def test_racesight_router_replay_endpoint_returns_frames(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.run_race_replay_mode",
+        lambda max_frames=6, include_brief=True: [{"frame": 1, "summary": "ok"}],
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/racesight/replay", json={"max_frames": 1, "include_brief": True})
+
+    assert response.status_code == 200
+    assert response.json() == {"frames": [{"frame": 1, "summary": "ok"}]}
+
+
+def test_racesight_router_coach_loop_endpoint_returns_steps(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.run_driver_coaching_loop",
+        lambda max_steps=6: [{"step": 1, "coaching": "lift"}],
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/racesight/coach-loop", json={"max_steps": 1})
+
+    assert response.status_code == 200
+    assert response.json() == {"steps": [{"step": 1, "coaching": "lift"}]}
+
+
+def test_racesight_router_stream_endpoint_streams_text(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.racesight_orchestrator",
+        lambda message: f"stream:{message}",
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/racesight/stream", json={"message": "hello"})
+
+    assert response.status_code == 200
+    assert "stream:hello" in response.text
+
+
+def test_racesight_router_status_endpoint_returns_runtime_status(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "ai.orchestrator.routes.get_runtime_status",
+        lambda: {"status": "online", "summary": "Lap 7, P3"},
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.get("/racesight/status")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "online", "summary": "Lap 7, P3"}

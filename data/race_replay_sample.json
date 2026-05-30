@@ -1,0 +1,232 @@
+{
+  "frames": [
+    {
+      "timestamp": "2026-05-29T14:00:00Z",
+      "car": {
+        "speed_kph": 224.2,
+        "gear": 7,
+        "rpm": 10840,
+        "throttle_pct": 81.0,
+        "brake_pct": 3.0,
+        "steering_angle_deg": -1.2,
+        "lap_number": 18,
+        "distance_on_lap_m": 2991.4,
+        "current_segment_id": "s2_t7",
+        "tire_compound": "medium",
+        "tire_wear_pct": 41.8,
+        "tire_temp_c": 97.0,
+        "fuel_remaining_l": 32.4,
+        "brake_temp_c": 598.0,
+        "suspension_load_front": 0.81,
+        "suspension_load_rear": 0.77,
+        "recommended_speed_kph": 226.0
+      },
+      "driver": {
+        "fatigue_level": 39.0,
+        "hydration_level": 68.0,
+        "stress_index": 44.0,
+        "reaction_time_ms_estimate": 224.0,
+        "steering_smoothness": 79.0,
+        "error_rate": 0.05,
+        "driver_style_profile": "balanced"
+      },
+      "environment": {
+        "ambient_temp_c": 28.4,
+        "track_temp_c_estimate": 35.9,
+        "weather_condition": "clear",
+        "wind_speed_kph": 11.0,
+        "wind_direction_deg": 182.0,
+        "grip_factor": 1.03
+      },
+      "race": {
+        "lap_number": 18,
+        "total_laps": 58,
+        "position_overall": 6,
+        "gap_ahead_s": 1.88,
+        "gap_behind_s": 0.94,
+        "safety_car_active": false,
+        "vsc_active": false,
+        "yellow_flag_sectors": [],
+        "cars_ahead": 1,
+        "cars_behind": 1
+      },
+      "traffic": {
+        "slow_car_gap_s": 1.88,
+        "slow_car_speed_delta_kph": -4.0,
+        "overtake_possible_here": true,
+        "recommended_overtake_segment_id": "s2_t8"
+      }
+    },
+    {
+      "timestamp": "2026-05-29T14:00:12Z",
+      "car": {
+        "speed_kph": 229.5,
+        "gear": 7,
+        "rpm": 10960,
+        "throttle_pct": 83.0,
+        "brake_pct": 2.0,
+        "steering_angle_deg": -0.8,
+        "lap_number": 19,
+        "distance_on_lap_m": 512.8,
+        "current_segment_id": "s3_t1",
+        "tire_compound": "medium",
+        "tire_wear_pct": 43.6,
+        "tire_temp_c": 98.0,
+        "fuel_remaining_l": 31.8,
+        "brake_temp_c": 607.0,
+        "suspension_load_front": 0.82,
+        "suspension_load_rear": 0.78,
+        "recommended_speed_kph": 227.0
+      },
+      "driver": {
+        "fatigue_level": 40.0,
+        "hydration_level": 67.0,
+        "stress_index": 46.0,
+        "reaction_time_ms_estimate": 225.0,
+        "steering_smoothness": 78.0,
+        "error_rate": 0.05,
+        "driver_style_profile": "balanced"
+      },
+      "environment": {
+        "ambient_temp_c": 28.6,
+        "track_temp_c_estimate": 36.2,
+        "weather_condition": "clear",
+        "wind_speed_kph": 11.0,
+        "wind_direction_deg": 183.0,
+        "grip_factor": 1.03
+      },
+      "race": {
+        "lap_number": 19,
+        "total_laps": 58,
+        "position_overall": 6,
+        "gap_ahead_s": 1.62,
+        "gap_behind_s": 1.01,
+        "safety_car_active": false,
+        "vsc_active": false,
+        "yellow_flag_sectors": [],
+        "cars_ahead": 1,
+        "cars_behind": 1
+      },
+      "traffic": {
+        "slow_car_gap_s": 1.62,
+        "slow_car_speed_delta_kph": -3.5,
+        "overtake_possible_here": true,
+        "recommended_overtake_segment_id": "s3_t2"
+      }
+    },
+    {
+      "timestamp": "2026-05-29T14:00:24Z",
+      "car": {
+        "speed_kph": 231.1,
+        "gear": 7,
+        "rpm": 11020,
+        "throttle_pct": 85.0,
+        "brake_pct": 1.0,
+        "steering_angle_deg": -0.5,
+        "lap_number": 20,
+        "distance_on_lap_m": 156.3,
+        "current_segment_id": "s3_t4",
+        "tire_compound": "medium",
+        "tire_wear_pct": 45.7,
+        "tire_temp_c": 98.8,
+        "fuel_remaining_l": 31.1,
+        "brake_temp_c": 614.0,
+        "suspension_load_front": 0.82,
+        "suspension_load_rear": 0.78,
+        "recommended_speed_kph": 228.0
+      },
+      "driver": {
+        "fatigue_level": 41.0,
+        "hydration_level": 66.0,
+        "stress_index": 47.0,
+        "reaction_time_ms_estimate": 226.0,
+        "steering_smoothness": 77.5,
+        "error_rate": 0.06,
+        "driver_style_profile": "balanced"
+      },
+      "environment": {
+        "ambient_temp_c": 28.9,
+        "track_temp_c_estimate": 36.5,
+        "weather_condition": "clear",
+        "wind_speed_kph": 12.0,
+        "wind_direction_deg": 184.0,
+        "grip_factor": 1.02
+      },
+      "race": {
+        "lap_number": 20,
+        "total_laps": 58,
+        "position_overall": 5,
+        "gap_ahead_s": 1.21,
+        "gap_behind_s": 1.12,
+        "safety_car_active": false,
+        "vsc_active": false,
+        "yellow_flag_sectors": [],
+        "cars_ahead": 1,
+        "cars_behind": 1
+      },
+      "traffic": {
+        "slow_car_gap_s": 1.21,
+        "slow_car_speed_delta_kph": -2.5,
+        "overtake_possible_here": true,
+        "recommended_overtake_segment_id": "s4_t1"
+      }
+    },
+    {
+      "timestamp": "2026-05-29T14:00:36Z",
+      "car": {
+        "speed_kph": 226.8,
+        "gear": 7,
+        "rpm": 10890,
+        "throttle_pct": 79.0,
+        "brake_pct": 4.0,
+        "steering_angle_deg": -1.5,
+        "lap_number": 21,
+        "distance_on_lap_m": 4378.0,
+        "current_segment_id": "s4_t6",
+        "tire_compound": "medium",
+        "tire_wear_pct": 47.9,
+        "tire_temp_c": 99.2,
+        "fuel_remaining_l": 30.4,
+        "brake_temp_c": 621.0,
+        "suspension_load_front": 0.83,
+        "suspension_load_rear": 0.79,
+        "recommended_speed_kph": 225.5
+      },
+      "driver": {
+        "fatigue_level": 43.0,
+        "hydration_level": 64.0,
+        "stress_index": 50.0,
+        "reaction_time_ms_estimate": 228.0,
+        "steering_smoothness": 76.0,
+        "error_rate": 0.06,
+        "driver_style_profile": "balanced"
+      },
+      "environment": {
+        "ambient_temp_c": 29.1,
+        "track_temp_c_estimate": 36.9,
+        "weather_condition": "clear",
+        "wind_speed_kph": 12.0,
+        "wind_direction_deg": 185.0,
+        "grip_factor": 1.02
+      },
+      "race": {
+        "lap_number": 21,
+        "total_laps": 58,
+        "position_overall": 5,
+        "gap_ahead_s": 1.09,
+        "gap_behind_s": 1.04,
+        "safety_car_active": false,
+        "vsc_active": false,
+        "yellow_flag_sectors": [],
+        "cars_ahead": 1,
+        "cars_behind": 1
+      },
+      "traffic": {
+        "slow_car_gap_s": 1.09,
+        "slow_car_speed_delta_kph": -2.0,
+        "overtake_possible_here": true,
+        "recommended_overtake_segment_id": "s4_t7"
+      }
+    }
+  ]
+}

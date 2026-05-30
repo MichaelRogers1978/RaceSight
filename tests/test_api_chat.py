@@ -140,3 +140,30 @@ def test_racesight_router_status_endpoint_returns_runtime_status(monkeypatch) ->
 
     assert response.status_code == 200
     assert response.json() == {"status": "online", "summary": "Lap 7, P3"}
+
+
+def test_api_rejects_missing_api_key_when_enabled(monkeypatch) -> None:
+    monkeypatch.setenv("RACESIGHT_API_KEY", "secret-token")
+    client = TestClient(granite_client.app)
+
+    response = client.post("/chat", json={"message": "hello"})
+
+    assert response.status_code == 401
+
+
+def test_api_accepts_bearer_api_key_when_enabled(monkeypatch) -> None:
+    monkeypatch.setenv("RACESIGHT_API_KEY", "secret-token")
+    monkeypatch.setattr(
+        "ai.orchestrator.granite_client.racesight_orchestrator",
+        lambda message: f"ok:{message}",
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post(
+        "/chat",
+        json={"message": "hello"},
+        headers={"Authorization": "Bearer secret-token"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"response": "ok:hello"}

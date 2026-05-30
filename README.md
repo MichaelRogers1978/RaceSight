@@ -32,6 +32,9 @@ Set these before live Granite calls:
 - `RACESIGHT_LOG_DIR`: optional directory for debug logs (default: `logs`)
 - `RACESIGHT_SENSOR_FEED_URL`: optional HTTP telemetry feed URL
 - `RACESIGHT_SENSOR_FEED_FILE`: telemetry JSON file path if URL is not set
+- `RACESIGHT_API_KEY`: optional bearer token required for all API routes when set
+- `RACESIGHT_RATE_LIMIT_PER_MINUTE`: optional per-client request limit, default `60`
+- `RACESIGHT_MAX_BODY_BYTES`: optional request size cap, default `1000000`
 
 Set these in your shell before running the orchestrator or backend.
 
@@ -91,6 +94,8 @@ Poll live runtime status:
 ```powershell
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/racesight/status" -Method Get
 ```
+
+If you set `RACESIGHT_API_KEY`, include it as a bearer token or `X-RaceSight-Token` header in your requests. The browser UI will use the value saved in its local API key field.
 
 ## Repository setup
 

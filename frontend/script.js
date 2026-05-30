@@ -4,6 +4,8 @@ const state = {
     mode: "chat",
 };
 
+const API_KEY_STORAGE_KEY = "racesightApiKey";
+
 function $(id) {
     return document.getElementById(id);
 }
@@ -26,10 +28,34 @@ function appendOutput(value) {
     $("output").scrollTop = $("output").scrollHeight;
 }
 
+function getApiKey() {
+    return window.localStorage.getItem(API_KEY_STORAGE_KEY) || "";
+}
+
+function saveApiKey() {
+    const apiKey = $("apiKeyInput").value.trim();
+    if (apiKey) {
+        window.localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+        setStatus("API key saved locally");
+    } else {
+        window.localStorage.removeItem(API_KEY_STORAGE_KEY);
+        setStatus("API key cleared");
+    }
+}
+
+function buildHeaders(baseHeaders = {}) {
+    const apiKey = getApiKey();
+    const headers = { ...baseHeaders };
+    if (apiKey) {
+        headers.Authorization = `Bearer ${apiKey}`;
+    }
+    return headers;
+}
+
 async function postJson(path, body) {
     const response = await fetch(`${backendUrl}${path}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: buildHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(body),
     });
 
@@ -43,7 +69,9 @@ async function postJson(path, body) {
 
 async function fetchStatus() {
     try {
-        const response = await fetch(`${backendUrl}/racesight/status`);
+        const response = await fetch(`${backendUrl}/racesight/status`, {
+            headers: buildHeaders(),
+        });
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
@@ -122,7 +150,7 @@ async function streamChat() {
 
     const response = await fetch(`${backendUrl}/racesight/stream`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: buildHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ message }),
     });
 
@@ -163,8 +191,10 @@ window.runCoachLoop = runCoachLoop;
 window.streamChat = streamChat;
 window.generateGraniteText = generateGraniteText;
 window.setMode = setMode;
+window.saveApiKey = saveApiKey;
 
 window.addEventListener("DOMContentLoaded", () => {
+    $("apiKeyInput").value = getApiKey();
     setMode("chat");
     fetchStatus();
     window.setInterval(fetchStatus, 15000);

@@ -19,6 +19,15 @@ def test_chat_endpoint_returns_orchestrator_response(monkeypatch) -> None:
     assert response.json() == {"response": "handled:What now?"}
 
 
+def test_frontend_root_serves_index_html() -> None:
+    client = TestClient(granite_client.app)
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "RaceSight Control Room" in response.text
+
+
 def test_chat_endpoint_validates_payload() -> None:
     client = TestClient(granite_client.app)
 

@@ -35,6 +35,7 @@ Set these before live Granite calls:
 - `RACESIGHT_API_KEY`: optional bearer token required for all API routes when set
 - `RACESIGHT_RATE_LIMIT_PER_MINUTE`: optional per-client request limit, default `60`
 - `RACESIGHT_MAX_BODY_BYTES`: optional request size cap, default `1000000`
+- `RACESIGHT_CORS_ALLOW_ORIGINS`: optional comma-separated allowlist for cross-origin frontend access
 
 Set these in your shell before running the orchestrator or backend.
 
@@ -71,7 +72,7 @@ Run the driver coaching loop from the CLI:
 
 ## Running the backend API
 
-Start the FastAPI backend (`/chat`) with the helper script:
+Start the FastAPI backend and same-origin frontend with the helper script:
 
 ```powershell
 ./backend_run.ps1
@@ -96,6 +97,8 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/racesight/status" -Method Get
 ```
 
 If you set `RACESIGHT_API_KEY`, include it as a bearer token or `X-RaceSight-Token` header in your requests. The browser UI will use the value saved in its local API key field.
+
+Open the frontend at `http://127.0.0.1:8000/` after starting the backend. The API and UI now share the same origin by default, and CORS is only needed when you intentionally host the frontend elsewhere.
 
 ## Repository setup
 

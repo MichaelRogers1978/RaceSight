@@ -58,5 +58,5 @@ def call_granite(prompt: str, system_prompt: str | None = None) -> str:
 
 
 if __name__ == "__main__":
-    text = call_granite("What should we do now?", system_prompt="You are RaceSight race engineer.")
+    text = call_granite("Lets talk racing!", system_prompt="You are RaceSight race engineer.")
     print(text)

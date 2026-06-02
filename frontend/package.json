@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "granite:test": "node -e \"import('./graniteAxiosClient.js').then(async (m) => { const out = await m.callGranite('What should we do now?', 'You are RaceSight race engineer.'); console.log(out); }).catch((e) => { console.error(e); process.exit(1); });\""
+    "granite:test": "node -e \"import('./graniteAxiosClient.js').then(async (m) => { const out = await m.callGranite('Lets talk racing!', 'You are RaceSight race engineer.'); console.log(out); }).catch((e) => { console.error(e); process.exit(1); });\""
   },
   "dependencies": {
     "axios": "^1.9.0"

@@ -36,6 +36,93 @@ def test_chat_endpoint_validates_payload() -> None:
     assert response.status_code == 422
 
 
+def test_chat_endpoint_returns_fallback_on_runtime_error(monkeypatch) -> None:
+    monkeypatch.setattr(
+        granite_client,
+        "racesight_orchestrator",
+        lambda _message: (_ for _ in ()).throw(RuntimeError("Granite request failed with HTTP 401")),
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/chat", json={"message": "What is the best pit strategy right now."})
+
+    assert response.status_code == 200
+    assert response.json()["response"].startswith("Lap 22, P7, safety none.")
+
+
+def test_chat_endpoint_falls_back_when_orchestrator_unavailable(monkeypatch) -> None:
+    monkeypatch.setattr(
+        granite_client,
+        "racesight_orchestrator",
+        lambda _message: (_ for _ in ()).throw(RuntimeError("Granite unavailable")),
+    )
+    monkeypatch.setattr(
+        granite_client,
+        "get_race_state",
+        lambda: {
+            "race_context": {"race_lap": 22, "position_overall": 7},
+            "pit_strategy_model": {
+                "should_pit_now": False,
+                "recommended_pit_window": {"start_lap": 24, "end_lap": 26},
+                "confidence": 74,
+            },
+            "safety_status": {"alert_level": "none"},
+        },
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/chat", json={"message": "What is the best pit strategy right now?"})
+
+    assert response.status_code == 200
+    assert response.json()["response"].startswith("Lap 22, P7, safety none.")
+    assert "24-26" in response.json()["response"]
+
+
+def test_chat_endpoint_returns_rain_fallback(monkeypatch) -> None:
+    monkeypatch.setattr(
+        granite_client,
+        "racesight_orchestrator",
+        lambda _message: (_ for _ in ()).throw(RuntimeError("Granite unavailable")),
+    )
+    monkeypatch.setattr(
+        granite_client,
+        "get_race_state",
+        lambda: {
+            "race_context": {"race_lap": 22, "position_overall": 7},
+            "pit_strategy_model": {
+                "should_pit_now": False,
+                "recommended_pit_window": {"start_lap": 24, "end_lap": 26},
+                "confidence": 74,
+            },
+            "safety_status": {"alert_level": "none"},
+        },
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post("/chat", json={"message": "What if it starts raining in 10 minuets?"})
+
+    assert response.status_code == 200
+    assert response.json()["response"].startswith("Lap 22, P7, safety none.")
+    assert "Rain strategy" in response.json()["response"]
+
+
+def test_granite_endpoint_maps_runtime_error_to_502(monkeypatch) -> None:
+    monkeypatch.setattr(
+        granite_client,
+        "racesight_granite_call",
+        lambda prompt, system_prompt=None: (_ for _ in ()).throw(RuntimeError("Granite request failed with HTTP 401")),
+    )
+    client = TestClient(granite_client.app)
+
+    response = client.post(
+        "/granite",
+        json={"prompt": "pit strategy", "system_prompt": "short"},
+    )
+
+    assert response.status_code == 502
+    assert "Granite request failed with HTTP 401" in response.text
+
+
 def test_granite_endpoint_returns_wrapper_response(monkeypatch) -> None:
     monkeypatch.setattr(
         granite_client,

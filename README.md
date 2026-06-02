@@ -1,8 +1,59 @@
-# RaceSight
+# RaceSight — AI‑Powered Motorsport Intelligence ##
 
-RaceSight is a motorsport intelligence system for race strategy, driver coaching, safety analysis, and what-if simulation. This repository includes a Granite-based orchestrator that selects tools, validates payloads, dispatches RaceSight functions, and returns structured responses.
+RaceSight is a real‑time race strategy and decision‑support system powered by IBM Granite.  
+It analyzes telemetry, race conditions, and driver state to generate:
 
-## What is in this repo
+- Optimal pit strategies  
+- Driver coaching insights  
+- Safety evaluations  
+- What‑if scenario simulations  
+
+RaceSight uses a Granite‑based orchestrator that interprets natural‑language requests, selects the correct internal tool, validates inputs, and returns structured, actionable recommendations.
+
+---
+
+##  Demo Video ##
+
+You can watch the full project demonstration here:
+
+**YouTube:** https://youtu.be/Mf0DHaYTRbY
+
+---
+
+##  Quickstart ##
+
+Clone the repository:
+
+```bash
+git clone https://github.com/MichaelRogers1978/RaceSight
+cd RaceSight
+
+python -m venv .venv
+source .venv/bin/activate   # macOS/Linux
+.venv\Scripts\activate      # Windows
+
+pip install -e . pydantic fastapi uvicorn httpx pytest
+
+export GRANITE_ENDPOINT="your-endpoint"
+export GRANITE_API_KEY="your-api-key"
+
+python -m uvicorn ai.orchestrator.granite_client:app --reload
+```
+
+For PowerShell on Windows, set environment variables with:
+
+```powershell
+$env:GRANITE_ENDPOINT = "your-endpoint"
+$env:GRANITE_API_KEY = "your-api-key"
+```
+
+You can also start the backend on Windows with:
+
+```powershell
+./backend_run.ps1 -Reload
+```
+
+## What is in this repo ##
 
 - `ai/`: Granite tool schemas, orchestrator configs, adapters, prompts, and validation helpers
 - `analytics/`: predictive and scoring model surfaces
@@ -12,7 +63,7 @@ RaceSight is a motorsport intelligence system for race strategy, driver coaching
 - `main.py/`: orchestrator entrypoint scripts
 - `docs/`: architecture and model documentation
 
-## Granite integration
+## Granite integration ##
 
 The Granite orchestration path is centered on these files:
 
@@ -22,7 +73,7 @@ The Granite orchestration path is centered on these files:
 - `ai/schema_usage.py`: strict tool parameter validation before execution
 - `ai/pydantic_models.py`: Pydantic models for RaceState and tool payloads
 
-## Environment variables
+## Environment variables ##
 
 Set these before live Granite calls:
 
@@ -41,7 +92,7 @@ Set these in your shell before running the orchestrator or backend.
 
 You can also pass endpoint, key, and model via CLI flags.
 
-## Running the orchestrator
+## Running the orchestrator ##
 
 Print the first-turn Granite payload without sending a request:
 
@@ -53,7 +104,7 @@ Run the orchestrator against a live Granite endpoint:
 
 ```powershell
 $env:GRANITE_ENDPOINT = "https://your-granite-endpoint"
-$env:GRANITE_API_KEY = "your-api-key"
+$env:GRANITE_API_KEY = "api-key"
 
 & ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" "Is it safe?"
 ```
@@ -70,7 +121,7 @@ Run the driver coaching loop from the CLI:
 & ".venv/Scripts/python.exe" "main.py/orchestrator_main.py" --mode coach --max-steps 4
 ```
 
-## Running the backend API
+## Running the backend API ##
 
 Start the FastAPI backend and same-origin frontend with the helper script:
 
@@ -87,7 +138,7 @@ Start with live-reload during development:
 Call the chat endpoint:
 
 ```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat" -Method Post -ContentType "application/json" -Body '{"message":"What should we do now?"}'
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/chat" -Method Post -ContentType "application/json" -Body '{"message":"Lets talk racing!"}'
 ```
 
 Poll live runtime status:
@@ -100,7 +151,7 @@ If you set `RACESIGHT_API_KEY`, include it as a bearer token or `X-RaceSight-Tok
 
 Open the frontend at `http://127.0.0.1:8000/` after starting the backend. The API and UI now share the same origin by default, and CORS is only needed when you intentionally host the frontend elsewhere.
 
-## Repository setup
+## Repository setup ##
 
 Recommended first push workflow:
 
@@ -112,13 +163,13 @@ Recommended first push workflow:
 
 For private-to-public publishing safety, follow the checklist in `SECURITY.md` before making the repository public.
 
-## Notes
+## Notes ##
 
 - Prompt files under `ai/prompts/` can be customized per agent role.
 - `main.py/orchestrator_main.py` now builds `RaceState` from live sensor feed input (`core/telemetry.py` + `core/race_state.py`).
 - If telemetry feed loading fails, the orchestrator falls back to the schema-conformant example payload to preserve availability.
 
-## CI schema validation
+## CI schema validation ##
 
 - GitHub Actions workflow `.github/workflows/schema-validation.yml` validates Granite JSON artifacts and compiles Python on each PR/push.
 - Local equivalent check:

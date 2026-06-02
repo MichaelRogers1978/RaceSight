@@ -1,5 +1,5 @@
 param(
-    [string]$Host = "127.0.0.1",
+    [string]$BindHost = "127.0.0.1",
     [int]$Port = 8000,
     [switch]$Reload
 )
@@ -9,7 +9,7 @@ if (-not (Test-Path $python)) {
     throw "Python virtual environment not found at $python"
 }
 
-$args = @("-m", "uvicorn", "ai.orchestrator.granite_client:app", "--host", $Host, "--port", "$Port")
+$args = @("-m", "uvicorn", "ai.orchestrator.granite_client:app", "--host", $BindHost, "--port", "$Port")
 if ($Reload) {
     $args += "--reload"
 }

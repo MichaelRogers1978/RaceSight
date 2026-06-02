@@ -54,6 +54,12 @@ function buildHeaders(baseHeaders = {}) {
     return headers;
 }
 
+function reportError(context, error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    appendOutput(`RaceSight error (${context}): ${detail}\n`);
+    setStatus(`${context} failed`);
+}
+
 async function postJson(path, body) {
     const response = await fetch(`${backendUrl}${path}`, {
         method: "POST",
@@ -111,34 +117,50 @@ async function sendMessage() {
     }
     appendOutput(`\nYou: ${message}\n`);
     setStatus("Sending chat to RaceSight...");
-    const data = await postJson("/chat", { message });
-    appendOutput(`RaceSight: ${data.response}\n`);
-    setStatus("Chat response received");
+    try {
+        const data = await postJson("/chat", { message });
+        appendOutput(`RaceSight: ${data.response}\n`);
+        setStatus("Chat response received");
+    } catch (error) {
+        reportError("Chat", error);
+    }
 }
 
 async function generateBrief() {
     const focus = $("briefFocus").value.trim() || "balanced";
     setStatus("Generating race engineer brief...");
-    const data = await postJson("/racesight/brief", { focus });
-    setOutput(data);
-    setStatus("Race engineer brief ready");
+    try {
+        const data = await postJson("/racesight/brief", { focus });
+        setOutput(data);
+        setStatus("Race engineer brief ready");
+    } catch (error) {
+        reportError("Brief", error);
+    }
 }
 
 async function loadReplay() {
     const maxFrames = Number.parseInt($("replayFrames").value, 10) || 4;
     const includeBrief = $("replayBrief").checked;
     setStatus("Loading replay timeline...");
-    const data = await postJson("/racesight/replay", { max_frames: maxFrames, include_brief: includeBrief });
-    setOutput(data);
-    setStatus("Replay loaded");
+    try {
+        const data = await postJson("/racesight/replay", { max_frames: maxFrames, include_brief: includeBrief });
+        setOutput(data);
+        setStatus("Replay loaded");
+    } catch (error) {
+        reportError("Replay", error);
+    }
 }
 
 async function runCoachLoop() {
     const maxSteps = Number.parseInt($("coachSteps").value, 10) || 4;
     setStatus("Running driver coaching loop...");
-    const data = await postJson("/racesight/coach-loop", { max_steps: maxSteps });
-    setOutput(data);
-    setStatus("Coaching loop ready");
+    try {
+        const data = await postJson("/racesight/coach-loop", { max_steps: maxSteps });
+        setOutput(data);
+        setStatus("Coaching loop ready");
+    } catch (error) {
+        reportError("Coach Loop", error);
+    }
 }
 
 async function streamChat() {
@@ -150,26 +172,30 @@ async function streamChat() {
     $("output").textContent = `You: ${message}\n\nRaceSight: `;
     setStatus("Streaming response...");
 
-    const response = await fetch(`${backendUrl}/racesight/stream`, {
-        method: "POST",
-        headers: buildHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ message }),
-    });
+    try {
+        const response = await fetch(`${backendUrl}/racesight/stream`, {
+            method: "POST",
+            headers: buildHeaders({ "Content-Type": "application/json" }),
+            body: JSON.stringify({ message }),
+        });
 
-    if (!response.ok || !response.body) {
-        throw new Error(`Streaming failed: HTTP ${response.status}`);
+        if (!response.ok || !response.body) {
+            throw new Error(`Streaming failed: HTTP ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            appendOutput(decoder.decode(value, { stream: true }));
+        }
+
+        appendOutput("\n");
+        setStatus("Streaming complete");
+    } catch (error) {
+        reportError("Streaming", error);
     }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        appendOutput(decoder.decode(value, { stream: true }));
-    }
-
-    appendOutput("\n");
-    setStatus("Streaming complete");
 }
 
 async function generateGraniteText() {
@@ -178,12 +204,16 @@ async function generateGraniteText() {
         return;
     }
     setStatus("Calling Granite text generator...");
-    const data = await postJson("/racesight/granite", {
-        prompt,
-        system_prompt: $("graniteSystemPrompt").value.trim() || undefined,
-    });
-    setOutput(data);
-    setStatus("Granite text generated");
+    try {
+        const data = await postJson("/racesight/granite", {
+            prompt,
+            system_prompt: $("graniteSystemPrompt").value.trim() || undefined,
+        });
+        setOutput(data);
+        setStatus("Granite text generated");
+    } catch (error) {
+        reportError("Granite", error);
+    }
 }
 
 window.sendMessage = sendMessage;
